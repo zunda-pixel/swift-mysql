@@ -1,17 +1,6 @@
 import CMySQL
 import Foundation
 
-protocol Database {
-  func connect() async throws
-  func shutdown() async throws
-  func close() async throws
-  func commit() async throws
-  func beginTransaction() async throws
-  func rollBack() async throws
-  func query(_ query: String) async throws
-}
-
-
 public struct SQLDatabase: Database {
   private let mysql: UnsafeMutablePointer<MYSQL>
   public let configration: Configuration
@@ -71,7 +60,7 @@ public struct SQLDatabase: Database {
     mysql_rollback(mysql)
   }
   
-  public func valueType(from type: enum_field_types) -> ValueType {
+  public func valueType(from type: enum_field_types) -> ColumnValueType {
     switch type {
     case MYSQL_TYPE_DECIMAL: return .decimal
     case MYSQL_TYPE_TINY: return .tiny
@@ -106,7 +95,7 @@ public struct SQLDatabase: Database {
     }
   }
   
-  public func query(_ query: String) async throws {
+  public func query(_ query: String) async throws -> [[String: (type: ColumnValueType, data: Data)]] {
     guard mysql_real_query(mysql, query, UInt(query.utf8.count)) == 0 else {
       fatalError()
     }
@@ -123,12 +112,12 @@ public struct SQLDatabase: Database {
     
     guard let fields = mysql_fetch_fields(response) else { fatalError() }
         
-    var allRows: [[String: (ValueType, Data)]] = []
+    var allRows: [[String: (ColumnValueType, Data)]] = []
     
     while true {
       guard let row = mysql_fetch_row(response) else { break }
       guard let lengths = mysql_fetch_lengths(response) else { fatalError() }
-      var columns: [String: (ValueType, Data)] = [:]
+      var columns: [String: (ColumnValueType, Data)] = [:]
       
       for i in 0..<fieldCount {
         guard let pointer = row[i] else { fatalError() }
@@ -142,82 +131,6 @@ public struct SQLDatabase: Database {
       allRows.append(columns)
     }
     
-    for row in allRows {
-//      let values = [row["id"]!.1, row["lastName"]!.1, row["firstName"]!.1, row["age"]!.1]
-//      let formattedValues = values.map { String(decoding: $0, as: UTF8.self) }
-//      let idData = UUID(from: row["id"]!.1)
-//      print(formattedValues)
-      
-      for (key, (type, value)) in row {
-        print(key, type, String(decoding: value, as: UTF8.self))
-      }
-    }
+    return allRows
   }
-}
-
-public extension UUID {
-  init(from data: Data) {
-    let binaries = Array(data)
-    let uuid: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) = (
-      binaries[0],
-      binaries[1],
-      binaries[2],
-      binaries[3],
-      binaries[4],
-      binaries[5],
-      binaries[6],
-      binaries[7],
-      binaries[8],
-      binaries[9],
-      binaries[10],
-      binaries[11],
-      binaries[12],
-      binaries[13],
-      binaries[14],
-      binaries[15]
-    )
-    
-    self.init(uuid: uuid)
-  }
-}
-
-public enum CharacterEncoding: String {
-  case utf8
-  case utf8mb4
-}
-
-public enum ConnectionError: LocalizedError {
-  case failedConnect
-}
-
-public enum ValueType {
-  case decimal
-  case tiny
-  case short
-  case long
-  case float
-  case double
-  case null
-  case timestamp
-  case longLong
-  case int24
-  case date
-  case time
-  case dateTime
-  case year
-  case varchar
-  case bit
-  case timestamp2
-  case invalid
-  case json
-  case newDecimal
-  case `enum`
-  case set
-  case tinyBlob
-  case mediumBlob
-  case longBlob
-  case blob
-  case varString
-  case string
-  case geometry
 }
