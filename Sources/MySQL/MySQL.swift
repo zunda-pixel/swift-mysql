@@ -90,9 +90,7 @@ public struct SQLDatabase: Database {
     case MYSQL_TYPE_VARCHAR: return .varchar
     case MYSQL_TYPE_BIT: return .bit
     case MYSQL_TYPE_TIMESTAMP2: return .timestamp2
-      //case MYSQL_TYPE_TYPED_ARRAY, /**< Used for replication only */
     case MYSQL_TYPE_INVALID: return .invalid
-    case MYSQL_TYPE_BOOL: return .bool// = 244, /**< Currently just a placeholder */
     case MYSQL_TYPE_JSON: return .json
     case MYSQL_TYPE_NEWDECIMAL: return .newDecimal
     case MYSQL_TYPE_ENUM: return .enum
@@ -211,7 +209,6 @@ public enum ValueType {
   case bit
   case timestamp2
   case invalid
-  case bool
   case json
   case newDecimal
   case `enum`
