@@ -80,6 +80,7 @@ public struct SQLDatabase: Database {
     }
     
     guard let response: UnsafeMutablePointer<MYSQL_RES> = mysql_use_result(mysql) else {
+      try handleError()
       fatalError()
     }
     
