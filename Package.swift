@@ -26,7 +26,9 @@ let package = Package(
     ),
     .testTarget(
       name: "MySQLTests",
-      dependencies: ["MySQL"]
+      dependencies: [
+        .target(name: "MySQL"),
+      ]
     ),
     .systemLibrary(
       name: "CMySQL",

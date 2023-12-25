@@ -83,13 +83,11 @@ public struct SQLDatabase: Database {
       try handleError()
       fatalError()
     }
-    
-    try handleError()
-    
+ 
     defer {
       mysql_free_result(response)
     }
-    
+
     let fieldCount = Int(mysql_num_fields(response))
     
     try handleError()
