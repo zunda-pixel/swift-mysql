@@ -70,7 +70,7 @@ public struct SQLDatabase: Database {
     print(String(validatingUTF8: error)!)
   }
   
-  public func query(_ query: String) async throws -> [[String: (type: ColumnValueType, data: Data)]] {
+  public func query(_ query: String) async throws -> [[String: (type: FieldType, data: Data)]] {
     let queryResult = mysql_real_query(mysql, query, UInt(query.utf8.count))
     
     try handleError()
@@ -96,20 +96,20 @@ public struct SQLDatabase: Database {
 
     try handleError()
 
-    var allRows: [[String: (ColumnValueType, Data)]] = []
+    var allRows: [[String: (FieldType, Data)]] = []
     
     while true {
       guard let row = mysql_fetch_row(response) else { break }
       try handleError()
       guard let lengths = mysql_fetch_lengths(response) else { fatalError() }
       try handleError()
-      var columns: [String: (ColumnValueType, Data)] = [:]
+      var columns: [String: (FieldType, Data)] = [:]
       
       for i in 0..<fieldCount {
         guard let pointer = row[i] else { fatalError() }
         let field = fields[i]
         guard let key = String(validatingUTF8: field.name) else { fatalError() }
-        let type = ColumnValueType(from: field.type)
+        let type = FieldType(from: field.type)
         let value = Data(bytes: UnsafeRawPointer(pointer), count: Int(lengths[i]))
         columns[key] = (type, value)
       }

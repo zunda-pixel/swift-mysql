@@ -7,5 +7,5 @@ protocol Database {
   func commit() async throws
   func beginTransaction() async throws
   func rollBack() async throws
-  func query(_ query: String) async throws -> [[String: (type: ColumnValueType, data: Data)]]
+  func query(_ query: String) async throws -> [[String: (type: FieldType, data: Data)]]
 }

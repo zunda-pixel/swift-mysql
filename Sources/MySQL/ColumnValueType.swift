@@ -1,6 +1,6 @@
 import CMySQL
 
-public enum ColumnValueType {
+public enum FieldType {
   case decimal
   case tiny
   case short
